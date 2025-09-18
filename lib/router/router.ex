@@ -7,7 +7,7 @@ defmodule Lobserver.Router do
 
   plug(:redirect_index)
   plug(:match)
-  plug(Corsica, origins: "*", allow_headers: :all, allow_methods: :all)
+  # plug(Corsica, origins: "*", allow_headers: :all, allow_methods: :all)
 
   plug(Plug.Parsers,
     parsers: [:json],

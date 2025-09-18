@@ -25,8 +25,6 @@ defmodule Lobserver.MixProject do
       {:plug, "~> 1.0"},
       {:bandit, "~> 1.0"},
       {:websock_adapter, "~> 0.5"},
-      {:corsica, "~> 2.0"},
-      {:merlin, path: "./../merlin"},
       {:sizeable, "~> 1.0"}
     ]
   end

@@ -40,7 +40,12 @@ export class MainLayout extends LitElement {
               value="Home"
               label="Home"
               href="/home"
-            ></sp-sidenav-item>           
+            ></sp-sidenav-item>
+              <sp-sidenav-item
+              value="White Rabbit"
+              label="White Rabbit"
+              href="/rabbit"
+            ></sp-sidenav-item>                 
           </sp-sidenav>
         </div>
         <div id="main-content">

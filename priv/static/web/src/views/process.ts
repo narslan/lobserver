@@ -35,17 +35,29 @@ export class ProcessElement extends LitElement {
 			<sp-accordion-item label=${this.label}>
 				<div id="tree-container">
 					<section id="tree-section">
-						<sp-table >
+						<sp-table>
 							<sp-table-head>
-								<sp-table-head-cell>Init</sp-table-head-cell>
-								<sp-table-head-cell
+								<sp-table-head-cell align="start"
+									>Init</sp-table-head-cell
+								>
+									<sp-table-head-cell align="start"
+									>Current</sp-table-head-cell
+								>
+								<sp-table-head-cell align="start"
+									>Name</sp-table-head-cell
+								>
+								<sp-table-head-cell align="center"
 									>Memory</sp-table-head-cell
 								>
-								<sp-table-head-cell>Name</sp-table-head-cell>
-								<sp-table-head-cell>Pid</sp-table-head-cell>
-								<sp-table-head-cell>Reductions</sp-table-head-cell>
-								<sp-table-head-cell>Current</sp-table-head-cell>
-								<sp-table-head-cell>Message Queue</sp-table-head-cell>
+								
+								<sp-table-head-cell align="center"
+									>Pid</sp-table-head-cell
+								>
+								<sp-table-head-cell align="center"
+									>Reductions</sp-table-head-cell
+								>
+							
+							
 							</sp-table-head>
 							<sp-table-body>
 								${when(
@@ -59,23 +71,23 @@ export class ProcessElement extends LitElement {
 														>${key.init}
 													</sp-table-cell>
 													<sp-table-cell
-														>${key.memory}
+														>${key.current}
 													</sp-table-cell>
 													<sp-table-cell
 														>${key.name}
 													</sp-table-cell>
+													<sp-table-cell
+														>${key.memory}
+													</sp-table-cell>
+													
 													<sp-table-cell
 														>${key.pid}
 													</sp-table-cell>
 													<sp-table-cell
 														>${key.reductions}
 													</sp-table-cell>
-													<sp-table-cell
-														>${key.current}
-													</sp-table-cell>
-																										<sp-table-cell
-														>${key.message_queue_length}
-													</sp-table-cell>
+													
+													
 												</sp-table-row>`,
 										),
 									() => html`Loading processes...`,
@@ -88,7 +100,27 @@ export class ProcessElement extends LitElement {
 		`;
 	}
 
-	static styles = [css``];
+	static styles = [
+		css`
+	sp-table-head-cell:nth-of-type(1),
+	sp-table-cell:nth-of-type(1) {
+  		width: 80px; /* Init */
+	}
+
+	sp-table-head-cell:nth-of-type(2),
+	sp-table-cell:nth-of-type(2) {
+	  width: 120px; /* Memory */
+	  text-align: right;
+	}
+	
+	sp-table-head-cell:nth-of-type(4),
+	sp-table-cell:nth-of-type(4) {
+	  width: 80px; /* Pid */
+	  text-align: right;
+	}
+	}
+		`,
+	];
 }
 
 declare global {
