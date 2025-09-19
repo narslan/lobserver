@@ -20,6 +20,12 @@ defmodule Lobserver.Router do
     |> halt()
   end
 
+  get "/_metrics" do
+    conn
+    |> WebSockAdapter.upgrade(Lobserver.WebSocket.Metrics, [], timeout: 60_000)
+    |> halt()
+  end
+
   # SPA fallback: alle anderen Routen auf index.html
   match _ do
     conn = put_resp_content_type(conn, "text/html")

@@ -1,5 +1,7 @@
 import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
+import "./process-metrics";
+
 /**
  * Home element.
  *
@@ -9,25 +11,32 @@ import { customElement, property } from "lit/decorators.js";
 @customElement("white-rabbit-element")
 export class WhiteRabbitElement extends LitElement {
   private ws: WebSocket | null = null;
+  // Hier speichern wir die Liste der Kinder-Komponenten, die ws nutzen
+  private childrenWaiting: any[] = [];
 
   connectedCallback() {
     super.connectedCallback();
-    this.ws = new WebSocket("ws://localhost:8000/_pgn");
+    this.ws = new WebSocket("ws://localhost:8000/_metrics");
 
-    this.ws.onopen = () => {
-      this.ws!.send(JSON.stringify({ action: "pgn_all", data: [] }));
-    };
+    // Nur wenn die WS offen ist, die Kinder informieren
+    this.ws.addEventListener("open", () => {
+      console.log("WebSocket connected");
+      this.childrenWaiting.forEach((child) => {
+        child.setWs(this.ws!);
+      });
+      this.childrenWaiting = [];
+    });
 
-    this.ws.onmessage = (msg) => {
-      const { action, data } = JSON.parse(msg.data);
-      if (action === "memory_metric") {
-        console.log(data);
-      }
-    };
+    this.ws.onclose = () => console.log("Metrics socket closed");
+  }
 
-    this.ws.onclose = () => {
-      console.log("PGN list socket closed");
-    };
+  /** Methode für Kinder, um die WS zu erhalten */
+  registerChild(child: any) {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      child.setWs(this.ws);
+    } else {
+      this.childrenWaiting.push(child);
+    }
   }
 
   disconnectedCallback() {
@@ -36,17 +45,15 @@ export class WhiteRabbitElement extends LitElement {
   }
 
   render() {
-    return html`
-     <memory-metrics></memory-metrics>
-    `;
+    const child = html`<process-metrics></process-metrics>`;
+    setTimeout(() => {
+      const el = this.renderRoot.querySelector("process-metrics");
+      if (el) this.registerChild(el);
+    });
+    return child;
   }
 
-
-  static styles = [
-    css`
-      
-        `,
-  ];
+  static styles = [css``];
 }
 
 declare global {
