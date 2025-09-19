@@ -2,24 +2,21 @@ defmodule Lobserver.WebSocket.Metrics do
   require Logger
 
   def init(_) do
-    Logger.debug("start metrics ")
-    {:ok, pid} = WhiteRabbit.Coordinator.start_link()
-
-    state = %{
-      white_rabbit_pid: pid
-    }
-
-    {:ok, state}
+    Logger.debug("start metrics")
+    # wir holen den pid später über Scheduler
+    {:ok, %{}}
   end
 
-  def handle_in(
-        {message, [opcode: :text]},
-        %{white_rabbit_pid: pid} = state
-      ) do
+  def handle_in({message, [opcode: :text]}, state) do
     case JSON.decode(message) do
       {:ok, %{"action" => "process_metrics"}} ->
-        result = get_process_metrics(pid)
-        Logger.debug("got result")
+        pid = Lobserver.Metrics.Scheduler.get_pid()
+        result = get_from_whiterabbit(pid, "runtime.process_count")
+        {:push, {:text, JSON.encode!(result)}, state}
+
+      {:ok, %{"action" => "cpu_metrics"}} ->
+        pid = Lobserver.Metrics.Scheduler.get_pid()
+        result = get_from_whiterabbit(pid, "system.cpu_util")
         {:push, {:text, JSON.encode!(result)}, state}
 
       {:ok, %{"action" => other}} ->
@@ -32,27 +29,14 @@ defmodule Lobserver.WebSocket.Metrics do
     end
   end
 
-  def terminate(reason, state) do
-    Logger.warning("remote closed with #{inspect(reason)}")
-
-    {:noreply, state}
-  end
-
-  defp get_process_metrics(pid) do
+  defp get_from_whiterabbit(pid, metric) do
     now = System.system_time(:second)
-    process_count = :erlang.system_info(:process_count)
+    data = WhiteRabbit.range(pid, metric, now - 60, now)
 
-    # Speichern
-    WhiteRabbit.insert(pid, "process", now, process_count)
-
-    # Abrufen für den Client
-    data = WhiteRabbit.range(pid, "process", now - 60, now)
-
-    {xs, ys} =
-      Enum.unzip(data)
+    {xs, ys} = Enum.unzip(Enum.map(data, fn {_metric, ts, val} -> {ts, val} end))
 
     %{
-      action: "process_metrics_ok",
+      action: metric <> "_ok",
       data: [xs, ys]
     }
   end
