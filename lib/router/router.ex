@@ -5,16 +5,13 @@ defmodule Lobserver.Router do
 
   plug(Plug.Logger)
 
-  plug(:redirect_index)
-  plug(:match)
-  # plug(Corsica, origins: "*", allow_headers: :all, allow_methods: :all)
-
-  plug(Plug.Parsers,
-    parsers: [:json],
-    pass: ["application/json"],
-    json_decoder: JSON
+  plug(Plug.Static,
+    at: "/",
+    from: {:lobserver, "priv/static/web/dist"},
+    gzip: false
   )
 
+  plug(:match)
   plug(:dispatch)
 
   get "/_memory" do
@@ -23,25 +20,9 @@ defmodule Lobserver.Router do
     |> halt()
   end
 
-  forward("/dist", to: Lobserver.Router.StaticResources)
-  forward("/assets", to: Lobserver.Router.AssetResources)
-
+  # SPA fallback: alle anderen Routen auf index.html
   match _ do
-    send_resp(conn, 404, "not found")
-  end
-
-  def redirect_index(%Plug.Conn{path_info: path} = conn, _opts) do
-    # IO.inspect(path, label: "path")
-
-    case path do
-      [] ->
-        %{conn | path_info: ["dist", "index.html"]}
-
-      ["assets", file] ->
-        %{conn | path_info: ["assets", file]}
-
-      _ ->
-        conn
-    end
+    conn = put_resp_content_type(conn, "text/html")
+    send_file(conn, 200, Path.join(:code.priv_dir(:lobserver), "static/web/dist/index.html"))
   end
 end

@@ -1,6 +1,5 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import './observer';
 /**
  * Home element.
  *
@@ -9,16 +8,36 @@ import './observer';
  */
 @customElement("white-rabbit-element")
 export class WhiteRabbitElement extends LitElement {
-  /**
-   * The number of times the button has been clicked.
-   */
-  @property({ type: Number, attribute: false })
-  count = 0;
+  private ws: WebSocket | null = null;
 
+  connectedCallback() {
+    super.connectedCallback();
+    this.ws = new WebSocket("ws://localhost:8000/_pgn");
+
+    this.ws.onopen = () => {
+      this.ws!.send(JSON.stringify({ action: "pgn_all", data: [] }));
+    };
+
+    this.ws.onmessage = (msg) => {
+      const { action, data } = JSON.parse(msg.data);
+      if (action === "memory_metric") {
+        console.log(data);
+      }
+    };
+
+    this.ws.onclose = () => {
+      console.log("PGN list socket closed");
+    };
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.ws?.close();
+  }
 
   render() {
     return html`
-     <observer-element></observer-element>
+     <memory-metrics></memory-metrics>
     `;
   }
 

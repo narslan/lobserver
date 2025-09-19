@@ -37,13 +37,11 @@ export class ObserverElement extends LitElement {
           })
         : { action: "", data: [] };
 
-      if (action === "result_memory") {
-        console.log(data)
-        console.log(that.memory_lines)
+      if (action === "result_memory") { 
         that.memory_lines! = [...that.memory_lines, ...data];
       } else if (action === "result_process") {
         that.process_lines = [...that.process_lines, ...data];
-        console.log(that.process_lines);
+        
       }
     };
 
