@@ -12,7 +12,7 @@ export class SchedulerMetrics extends LitElement {
 	private chart: uPlot | null = null;
 
 	render() {
-		return html` <h3>Reduction</h3>
+		return html` <h3>Scheduler</h3>
 			<div id="schedulerChart"></div>`;
 	}
 
@@ -29,7 +29,7 @@ export class SchedulerMetrics extends LitElement {
 		console.log("send metrics");
 		this.ws.addEventListener("message", (msg) => {
 			const parsed = JSON.parse(msg.data);
-			if (parsed.action === "scheduler_metrics_ok") {
+			if (parsed.action === "scheduler_ok") {
 				this.handleMessage(parsed);
 			}
 		});

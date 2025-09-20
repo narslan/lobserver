@@ -8,11 +8,10 @@ defmodule Lobserver.Application do
     :erlang.system_flag(:scheduler_wall_time, true)
 
     children = [
-      {Registry, keys: :unique, name: Lobserver.Registry},
       {WhiteRabbit.Coordinator, name: :white_rabbit},
       Lobserver.Metrics.ReductionsCollector,
       Lobserver.Metrics.MemoryCollector,
-      Lobserver.Metrics.SchedulerCollector,
+      Lobserver.Metrics.SchedulerCollectorNeue,
       {Bandit, plug: Lobserver.Router, port: 8000}
     ]
 

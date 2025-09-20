@@ -1,46 +1,40 @@
 defmodule Lobserver.Metrics.SchedulerCollector do
   use GenServer
+  require Logger
 
   @interval 1_000
 
-  def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, %{}, opts)
+  # API
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, %{}, name: :scheduler_collector)
   end
 
+  # Callbacks
+  @impl true
   def init(_) do
-    # erste Messung holen
-    schedulers = :erlang.statistics(:scheduler_wall_time)
-    state = %{last: schedulers}
+    # :erlang.system_flag(:scheduler_wall_time, true)
+    last = :erlang.statistics(:scheduler_wall_time)
     schedule()
-    {:ok, state}
+    {:ok, %{last: last}}
   end
 
+  @impl true
   def handle_info(:collect, %{last: last} = state) do
     now = :erlang.statistics(:scheduler_wall_time)
 
-    # Delta berechnen
-    utilization =
-      calc_utilization(last, now)
-      |> Float.round(3)
+    {active_delta, total_delta} =
+      Enum.zip(last, now)
+      |> Enum.reduce({0, 0}, fn {{_id, a1, t1}, {_id2, a2, t2}}, {a, t} ->
+        {a + (a2 - a1), t + (t2 - t1)}
+      end)
 
-    ts = System.system_time(:second)
+    utilization = if total_delta == 0, do: 0.0, else: active_delta / total_delta
 
-    # In WhiteRabbit speichern
-    WhiteRabbit.insert(:white_rabbit, "scheduler_util", ts, utilization)
+    WhiteRabbit.insert(:white_rabbit, :scheduler_util, System.system_time(:second), utilization)
 
     schedule()
     {:noreply, %{state | last: now}}
   end
 
-  defp schedule, do: Process.send_after(self(), :collect, @interval)
-
-  defp calc_utilization(last, now) do
-    {active_delta, total_delta} =
-      Enum.zip(last, now)
-      |> Enum.reduce({0, 0}, fn {{_id, active1, total1}, {_id2, active2, total2}}, {a, t} ->
-        {a + (active2 - active1), t + (total2 - total1)}
-      end)
-
-    if total_delta == 0, do: 0.0, else: active_delta / total_delta
-  end
+  defp schedule(), do: Process.send_after(self(), :collect, @interval)
 end

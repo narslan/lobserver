@@ -1,18 +1,30 @@
 defmodule Lobserver.Metrics.MemoryCollector do
-  use Lobserver.MetricCollector, metric: :memory, interval: 2_000
+  use GenServer
+  require Logger
 
-  # Rohdaten in Bytes aus der VM
-  def collect_raw() do
-    :erlang.memory(:total)
+  @interval 1_000
+
+  # API
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, %{}, name: :memory_collector)
   end
 
-  # Umrechnung in MB + Delta optional
-  def compute_delta(_last, now_bytes) do
-    bytes_to_mb(now_bytes)
+  # Callbacks
+  @impl true
+  def init(_) do
+    schedule()
+    {:ok, %{}}
   end
 
-  defp bytes_to_mb(bytes) do
-    # 1024 * 1024 = MB
-    Float.round(bytes / 1_048_576, 2)
+  @impl true
+  def handle_info(:collect, state) do
+    now = System.system_time(:second)
+    # MB
+    mem = :erlang.memory(:total) / 1_000_000
+    WhiteRabbit.insert(:white_rabbit, :memory, now, mem)
+    schedule()
+    {:noreply, state}
   end
+
+  defp schedule(), do: Process.send_after(self(), :collect, @interval)
 end

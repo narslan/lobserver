@@ -29,7 +29,7 @@ export class ReductionMetrics extends LitElement {
 		console.log("send metrics");
 		this.ws.addEventListener("message", (msg) => {
 			const parsed = JSON.parse(msg.data);
-			if (parsed.action === "runtime.reductions_per_sec_ok") {
+			if (parsed.action === "reductions_ok") {
 				this.handleMessage(parsed);
 			}
 		});
@@ -39,7 +39,7 @@ export class ReductionMetrics extends LitElement {
 	}
 
 	private sendMetricsRequest() {
-		this.ws?.send(JSON.stringify({ action: "reduction_metrics" }));
+		this.ws?.send(JSON.stringify({ action: "reductions_metrics" }));
 	}
 
 	private handleMessage(parsed) {
@@ -64,7 +64,7 @@ export class ReductionMetrics extends LitElement {
 			scales: { x: { time: true } }, // Zeitachse aktivieren
 			series: [
 				{}, // Platzhalter für X-Achse
-				{ label: "Processes", stroke: "green", width: 2 },
+				{ label: "Reduction Delta", stroke: "green", width: 2 },
 			],
 		};
 
