@@ -3,8 +3,8 @@ import { customElement, state } from "lit/decorators.js";
 import uPlot from "uplot";
 import uPlotCss from "uplot/dist/uPlot.min.css?inline";
 
-@customElement("process-metrics")
-export class ProcessMetrics extends LitElement {
+@customElement("reduction-metrics")
+export class ReductionMetrics extends LitElement {
 	private ws: WebSocket | null = null;
 
 	@state() trendValues: number[] = [];
@@ -12,8 +12,8 @@ export class ProcessMetrics extends LitElement {
 	private chart: uPlot | null = null;
 
 	render() {
-		return html` <h3>Process</h3>
-			<div id="trendChart"></div>`;
+		return html` <h3>Reduction</h3>
+			<div id="reductionChart"></div>`;
 	}
 
 	connectedCallback() {
@@ -27,21 +27,19 @@ export class ProcessMetrics extends LitElement {
 		this.ws = ws;
 		//		this.sendMetricsRequest();
 		console.log("send metrics");
-
 		this.ws.addEventListener("message", (msg) => {
 			const parsed = JSON.parse(msg.data);
-			if (parsed.action === "runtime.process_count_ok") {
+			if (parsed.action === "runtime.reductions_ok") {
 				this.handleMessage(parsed);
 			}
 		});
-
 		setInterval(() => {
 			this.sendMetricsRequest();
 		}, 1000);
 	}
 
 	private sendMetricsRequest() {
-		this.ws?.send(JSON.stringify({ action: "process_count" }));
+		this.ws?.send(JSON.stringify({ action: "reduction_metrics" }));
 	}
 
 	private handleMessage(parsed) {
@@ -56,13 +54,13 @@ export class ProcessMetrics extends LitElement {
 
 	private createChart(xs: number[], ys: number[]) {
 		const chartDiv = this.renderRoot.querySelector(
-			"#trendChart",
+			"#reductionChart",
 		) as HTMLElement;
 
 		const opts: uPlot.Options = {
 			width: 600,
 			height: 300,
-			title: "Process Metrics",
+			title: "Reduction Metrics",
 			scales: { x: { time: true } }, // Zeitachse aktivieren
 			series: [
 				{}, // Platzhalter für X-Achse

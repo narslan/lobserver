@@ -1,6 +1,7 @@
 import { LitElement, css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import "./process-metrics";
+import "./reduction-metrics";
 
 /**
  * Home element.
@@ -45,12 +46,18 @@ export class WhiteRabbitElement extends LitElement {
   }
 
   render() {
-    const child = html`<process-metrics></process-metrics>`;
-    setTimeout(() => {
-      const el = this.renderRoot.querySelector("process-metrics");
-      if (el) this.registerChild(el);
-    });
-    return child;
+   const children = html`
+    <process-metrics></process-metrics>
+    <reduction-metrics></reduction-metrics>
+  `;
+
+  // nach dem Rendern die Kinder registrieren
+  setTimeout(() => {
+    this.renderRoot.querySelectorAll("process-metrics, reduction-metrics")
+      .forEach(el => this.registerChild(el));
+  });
+
+  return children;
   }
 
   static styles = [css``];

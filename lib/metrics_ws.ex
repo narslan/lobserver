@@ -9,15 +9,15 @@ defmodule Lobserver.WebSocket.Metrics do
 
   def handle_in({message, [opcode: :text]}, state) do
     case JSON.decode(message) do
-      {:ok, %{"action" => "process_metrics"}} ->
-        pid = Lobserver.Metrics.Scheduler.get_pid()
-        result = get_from_whiterabbit(pid, "runtime.process_count")
-        {:push, {:text, JSON.encode!(result)}, state}
+      {:ok, %{"action" => "process_count"}} ->
+        pid = Lobserver.Metrics.Collector.get_pid()
 
-      {:ok, %{"action" => "cpu_metrics"}} ->
-        pid = Lobserver.Metrics.Scheduler.get_pid()
-        result = get_from_whiterabbit(pid, "system.cpu_util")
-        {:push, {:text, JSON.encode!(result)}, state}
+        {:push, {:text, JSON.encode!(get_from_whiterabbit(pid, "runtime.process_count"))}, state}
+
+      {:ok, %{"action" => "reduction_metrics"}} ->
+        pid = Lobserver.Metrics.Collector.get_pid()
+
+        {:push, {:text, JSON.encode!(get_from_whiterabbit(pid, "runtime.reductions"))}, state}
 
       {:ok, %{"action" => other}} ->
         Logger.warning("Unhandled action: #{other}")
@@ -33,7 +33,8 @@ defmodule Lobserver.WebSocket.Metrics do
     now = System.system_time(:second)
     data = WhiteRabbit.range(pid, metric, now - 60, now)
 
-    {xs, ys} = Enum.unzip(Enum.map(data, fn {_metric, ts, val} -> {ts, val} end))
+    # {xs, ys} = Enum.unzip(Enum.map(data, fn {_metric, ts, val} -> {ts, val} end))
+    {xs, ys} = Enum.unzip(data)
 
     %{
       action: metric <> "_ok",
