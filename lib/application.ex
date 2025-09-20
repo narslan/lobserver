@@ -11,7 +11,7 @@ defmodule Lobserver.Application do
       {WhiteRabbit.Coordinator, name: :white_rabbit},
       Lobserver.Metrics.ReductionsCollector,
       Lobserver.Metrics.MemoryCollector,
-      Lobserver.Metrics.SchedulerCollectorNeue,
+      Lobserver.Metrics.SchedulerCollector,
       {Bandit, plug: Lobserver.Router, port: 8000}
     ]
 
