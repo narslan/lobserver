@@ -9,16 +9,8 @@ defmodule Lobserver.WebSocket.Metrics do
 
   def handle_in({message, [opcode: :text]}, state) do
     case JSON.decode(message) do
-      {:ok, %{"action" => "process_count"}} ->
-        pid = Lobserver.Metrics.Collector.get_pid()
-
-        {:push, {:text, JSON.encode!(get_from_whiterabbit(pid, "runtime.process_count"))}, state}
-
       {:ok, %{"action" => "reduction_metrics"}} ->
-        pid = Lobserver.Metrics.Collector.get_pid()
-
-        {:push, {:text, JSON.encode!(get_from_whiterabbit(pid, "runtime.reductions_per_sec"))},
-         state}
+        {:push, {:text, JSON.encode!(get_from_whiterabbit("runtime.reductions_per_sec"))}, state}
 
       {:ok, %{"action" => "scheduler_metrics"}} ->
         data = get_scheduler_metrics()
@@ -34,9 +26,9 @@ defmodule Lobserver.WebSocket.Metrics do
     end
   end
 
-  defp get_from_whiterabbit(pid, metric) do
+  defp get_from_whiterabbit(metric) do
     now = System.system_time(:second)
-    data = WhiteRabbit.range(pid, metric, now - 60, now)
+    data = WhiteRabbit.range(:white_rabbit, metric, now - 60, now)
 
     # {xs, ys} = Enum.unzip(Enum.map(data, fn {_metric, ts, val} -> {ts, val} end))
     {xs, ys} = Enum.unzip(data)
