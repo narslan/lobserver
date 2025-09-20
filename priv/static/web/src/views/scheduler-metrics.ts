@@ -3,8 +3,8 @@ import { customElement, state } from "lit/decorators.js";
 import uPlot from "uplot";
 import uPlotCss from "uplot/dist/uPlot.min.css?inline";
 
-@customElement("reduction-metrics")
-export class ReductionMetrics extends LitElement {
+@customElement("scheduler-metrics")
+export class SchedulerMetrics extends LitElement {
 	private ws: WebSocket | null = null;
 
 	@state() trendValues: number[] = [];
@@ -13,7 +13,7 @@ export class ReductionMetrics extends LitElement {
 
 	render() {
 		return html` <h3>Reduction</h3>
-			<div id="reductionChart"></div>`;
+			<div id="schedulerChart"></div>`;
 	}
 
 	connectedCallback() {
@@ -29,7 +29,7 @@ export class ReductionMetrics extends LitElement {
 		console.log("send metrics");
 		this.ws.addEventListener("message", (msg) => {
 			const parsed = JSON.parse(msg.data);
-			if (parsed.action === "runtime.reductions_per_sec_ok") {
+			if (parsed.action === "scheduler_metrics_ok") {
 				this.handleMessage(parsed);
 			}
 		});
@@ -39,7 +39,7 @@ export class ReductionMetrics extends LitElement {
 	}
 
 	private sendMetricsRequest() {
-		this.ws?.send(JSON.stringify({ action: "reduction_metrics" }));
+		this.ws?.send(JSON.stringify({ action: "scheduler_metrics" }));
 	}
 
 	private handleMessage(parsed) {
@@ -54,17 +54,17 @@ export class ReductionMetrics extends LitElement {
 
 	private createChart(xs: number[], ys: number[]) {
 		const chartDiv = this.renderRoot.querySelector(
-			"#reductionChart",
+			"#schedulerChart",
 		) as HTMLElement;
 
 		const opts: uPlot.Options = {
 			width: 600,
 			height: 300,
-			title: "Reduction Metrics",
+			title: "Scheduler Metrics",
 			scales: { x: { time: true } }, // Zeitachse aktivieren
 			series: [
 				{}, // Platzhalter für X-Achse
-				{ label: "Processes", stroke: "green", width: 2 },
+				{ label: "Scheduler", stroke: "green", width: 2 },
 			],
 		};
 

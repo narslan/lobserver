@@ -2,6 +2,7 @@ import { LitElement, css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import "./process-metrics";
 import "./reduction-metrics";
+import "./scheduler-metrics";
 
 /**
  * Home element.
@@ -49,11 +50,12 @@ export class WhiteRabbitElement extends LitElement {
    const children = html`
     <process-metrics></process-metrics>
     <reduction-metrics></reduction-metrics>
+     <scheduler-metrics></scheduler-metrics>
   `;
 
   // nach dem Rendern die Kinder registrieren
   setTimeout(() => {
-    this.renderRoot.querySelectorAll("process-metrics, reduction-metrics")
+    this.renderRoot.querySelectorAll("process-metrics, reduction-metrics, scheduler-metrics")
       .forEach(el => this.registerChild(el));
   });
 

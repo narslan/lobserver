@@ -4,14 +4,15 @@ defmodule Lobserver.Metrics.Collector do
   def start_link(opts), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
 
   @impl true
-  def init(opts) do
+  def init(_init_args) do
+    {:ok, pid} = WhiteRabbit.Coordinator.start_link()
     schedule_tick()
-    {:ok, %{white_rabbit_pid: opts[:white_rabbit_pid], last: %{}}}
+    {:ok, %{white_rabbit_pid: pid, last: %{}}}
   end
 
   @impl true
   def handle_call(:get_pid, _from, state) do
-    {:reply, state.white_rabbit_pid}
+    {:reply, state.white_rabbit_pid, state}
   end
 
   @impl true

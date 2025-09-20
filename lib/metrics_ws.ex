@@ -17,7 +17,12 @@ defmodule Lobserver.WebSocket.Metrics do
       {:ok, %{"action" => "reduction_metrics"}} ->
         pid = Lobserver.Metrics.Collector.get_pid()
 
-        {:push, {:text, JSON.encode!(get_from_whiterabbit(pid, "runtime.reductions"))}, state}
+        {:push, {:text, JSON.encode!(get_from_whiterabbit(pid, "runtime.reductions_per_sec"))},
+         state}
+
+      {:ok, %{"action" => "scheduler_metrics"}} ->
+        data = get_scheduler_metrics()
+        {:push, {:text, JSON.encode!(data)}, state}
 
       {:ok, %{"action" => other}} ->
         Logger.warning("Unhandled action: #{other}")
@@ -40,5 +45,12 @@ defmodule Lobserver.WebSocket.Metrics do
       action: metric <> "_ok",
       data: [xs, ys]
     }
+  end
+
+  defp get_scheduler_metrics() do
+    now = System.system_time(:second)
+    data = WhiteRabbit.range(:white_rabbit, "scheduler_util", now - 60, now)
+    {xs, ys} = Enum.unzip(data)
+    %{action: "scheduler_metrics_ok", data: [xs, ys]}
   end
 end
