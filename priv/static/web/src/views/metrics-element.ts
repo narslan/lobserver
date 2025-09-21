@@ -10,8 +10,8 @@ import "./scheduler-metrics";
  * @slot - This element has a slot
  * @csspart button - The button
  */
-@customElement("white-rabbit-element")
-export class WhiteRabbitElement extends LitElement {
+@customElement("metrics-element")
+export class MetricsElement extends LitElement {
   private ws: WebSocket | null = null;
   // Hier speichern wir die Liste der Kinder-Komponenten, die ws nutzen
   private childrenWaiting: any[] = [];
@@ -67,6 +67,6 @@ export class WhiteRabbitElement extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "white-rabbit-element": WhiteRabbitElement;
+    "metrics-element": MetricsElement;
   }
 }

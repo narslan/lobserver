@@ -6,7 +6,7 @@ const routes: Route[] = [
 		path: "/",
 		component: "main-layout",
 		children: [
-			{ path: "", redirect: "/rabbit" },
+			{ path: "", redirect: "/metrics" },
 			{
 				path: "home",
 				component: "home-element",
@@ -15,10 +15,10 @@ const routes: Route[] = [
 				},
 			},
 			{
-				path: "rabbit",
-				component: "white-rabbit-element",
+				path: "metrics",
+				component: "metrics-element",
 				action: async () => {
-					await import("./views/white-rabbit");
+					await import("./views/metrics-element");
 				},
 			},
 		],

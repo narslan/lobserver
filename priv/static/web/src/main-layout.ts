@@ -37,14 +37,14 @@ export class MainLayout extends LitElement {
         <div id="sidebar">
           <sp-sidenav variant="multilevel" defaultValue="Home">
             <sp-sidenav-item
-              value="Home"
-              label="Home"
+              value="Overview"
+              label="Overview"
               href="/home"
             ></sp-sidenav-item>
               <sp-sidenav-item
-              value="White Rabbit"
-              label="White Rabbit"
-              href="/rabbit"
+              value="ErlangVM Metrics"
+              label="ErlangVM Metrics"
+              href="/metrics"
             ></sp-sidenav-item>                 
           </sp-sidenav>
         </div>

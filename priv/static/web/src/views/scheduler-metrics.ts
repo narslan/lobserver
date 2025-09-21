@@ -12,14 +12,14 @@ export class SchedulerMetrics extends LitElement {
 	private chart: uPlot | null = null;
 
 	render() {
-		return html` <h3>Scheduler</h3>
+		return html` <h3>Scheduler (Weighted Usage of CPU by Erlang VM)</h3>
 			<div id="schedulerChart"></div>`;
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
 		// Registrierung beim Parent, um die WS zu erhalten
-		const parent = this.closest("white-rabbit-element") as any;
+		const parent = this.closest("metrics-element") as any;
 		parent?.registerChild(this);
 	}
 

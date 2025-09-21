@@ -12,14 +12,14 @@ export class MemoryMetrics extends LitElement {
 	private chart: uPlot | null = null;
 
 	render() {
-		return html` <h3>Memory</h3>
+		return html` <h3>Memory usage over time in MB</h3>
 			<div id="memoryChart"></div>`;
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
 		// Registrierung beim Parent, um die WS zu erhalten
-		const parent = this.closest("white-rabbit-element") as any;
+		const parent = this.closest("metrics-element") as any;
 		parent?.registerChild(this);
 	}
 
@@ -64,7 +64,7 @@ export class MemoryMetrics extends LitElement {
 			scales: { x: { time: true } }, // Zeitachse aktivieren
 			series: [
 				{}, // Platzhalter für X-Achse
-				{ label: "Processes", stroke: "green", width: 2 },
+				{ label: "Memory", stroke: "green", width: 2 },
 			],
 		};
 

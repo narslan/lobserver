@@ -12,14 +12,14 @@ export class ReductionMetrics extends LitElement {
 	private chart: uPlot | null = null;
 
 	render() {
-		return html` <h3>Reduction</h3>
+		return html` <h3>Change of Reductions over Time</h3>
 			<div id="reductionChart"></div>`;
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
 		// Registrierung beim Parent, um die WS zu erhalten
-		const parent = this.closest("white-rabbit-element") as any;
+		const parent = this.closest("metrics-element") as any;
 		parent?.registerChild(this);
 	}
 
