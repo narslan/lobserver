@@ -25,3 +25,6 @@ iex -S mix
 ```
 Visit in the browser: http://localhost:5173
 
+# Standalone Integration without Phoenix
+
+# Integration with Phoenix
