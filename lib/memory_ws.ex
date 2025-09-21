@@ -38,9 +38,8 @@ defmodule Lobserver.WebSocket.Memory do
     {:push, {:text, JSON.encode!(result)}, state}
   end
 
-  def terminate(reason, state) do
-    Logger.warning("remote closed with #{reason}")
-
+  def terminate(_reason, state) do
+    Logger.warning("remote closed")
     {:noreply, state}
   end
 

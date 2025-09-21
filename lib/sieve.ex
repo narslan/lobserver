@@ -1,6 +1,7 @@
 defmodule Sieve do
   @doc """
   Generates a list of primes up to a given limit.
+  This Modul serves the purpose of generating CPU load.
   """
 
   @spec primes_to(non_neg_integer) :: [non_neg_integer]
