@@ -5,14 +5,14 @@ defmodule Lobserver.Application do
 
   @impl true
   def start(_type, _args) do
-    :erlang.system_flag(:scheduler_wall_time, true)
+    port = System.get_env("LOBSERVER_SERVER_PORT", 8000)
 
     children = [
       {WhiteRabbit.Coordinator, name: :white_rabbit},
       Lobserver.Metrics.ReductionsCollector,
       Lobserver.Metrics.MemoryCollector,
       Lobserver.Metrics.SchedulerCollector,
-      {Bandit, plug: Lobserver.Router, port: 8000}
+      {Bandit, plug: Lobserver.Router, port: port}
     ]
 
     opts = [strategy: :one_for_one, name: Lobserver.Supervisor]
