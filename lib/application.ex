@@ -5,7 +5,7 @@ defmodule Lobserver.Application do
 
   @impl true
   def start(_type, _args) do
-    port = System.get_env("LOBSERVER_SERVER_PORT", 8000)
+    port = System.get_env("LOBSERVER_SERVER_PORT", "8000") |> String.to_integer()
 
     children = [
       {WhiteRabbit.Coordinator, name: :white_rabbit},
