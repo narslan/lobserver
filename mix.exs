@@ -26,7 +26,7 @@ defmodule Lobserver.MixProject do
       {:bandit, "~> 1.0"},
       {:websock_adapter, "~> 0.5"},
       {:sizeable, "~> 1.0"},
-      {:white_rabbit, ">= 0.1.0", path: "../../tcp/white_rabbit"}
+      {:white_rabbit, ">= 0.1.0", github: "narslan/white_rabbit"}
     ]
   end
 end
