@@ -13,17 +13,18 @@ defmodule Lobserver.Metrics.ReductionsCollector do
   @impl true
   def init(_) do
     schedule()
-    last = :erlang.statistics(:reductions)
-    {:ok, %{last: last}}
+    {:ok, %{last: :erlang.statistics(:reductions)}}
   end
 
   @impl true
-  def handle_info(:collect, %{last: last} = state) do
-    now = :erlang.statistics(:reductions)
-    delta = {elem(now, 0) - elem(last, 0), elem(now, 1) - elem(last, 1)}
+  def handle_info(:collect, %{last: {last_reds, last_gc}} = state) do
+    {now_reds, now_gc} = :erlang.statistics(:reductions)
+
+    delta = {now_reds - last_reds, now_gc - last_gc}
+
     WhiteRabbit.insert(:white_rabbit, :reductions, System.system_time(:second), delta)
     schedule()
-    {:noreply, %{state | last: now}}
+    {:noreply, %{state | last: {now_reds, now_gc}}}
   end
 
   defp schedule(), do: Process.send_after(self(), :collect, @interval)

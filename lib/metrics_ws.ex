@@ -41,8 +41,11 @@ defmodule Lobserver.WebSocket.Metrics do
   defp get_reductions_metrics() do
     now = System.system_time(:second)
     data = WhiteRabbit.range(:white_rabbit, :reductions, now - 60, now)
-    {xs, ys} = Enum.unzip(Enum.map(data, fn {x, {_y, z}} -> {x, z} end))
-    %{action: "reductions_ok", data: [xs, ys]}
+    xs = Enum.map(data, fn {ts, _} -> ts end)
+    ys1 = Enum.map(data, fn {_, {reds, _}} -> reds end)
+    ys2 = Enum.map(data, fn {_, {_, gc}} -> gc end)
+
+    %{action: "reductions_ok", data: [xs, ys1, ys2]}
   end
 
   defp get_memory_metrics() do
