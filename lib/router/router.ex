@@ -1,7 +1,6 @@
 defmodule Lobserver.Router do
   use Plug.Router
   use Plug.Debugger
-  require Logger
 
   plug(Plug.Logger)
 
