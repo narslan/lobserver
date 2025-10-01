@@ -12,7 +12,7 @@ export class ObserverElement extends LitElement {
   @state() ws = new WebSocket(`ws://localhost:8000/_memory`);
   @state() memory_lines?: Memory[] = [];
   @state() process_lines?: Process[] = [];
-  @state() selectedProcess: any = null; 
+  @state() selectedProcess: any = null;
   private handleRowClick(e: CustomEvent<{ pid: string }>) {
     const pid = e.detail.pid;
     this.ws.send(JSON.stringify({ action: "get_process_info", pid }));
@@ -25,7 +25,7 @@ export class ObserverElement extends LitElement {
       </sp-accordion>
 
       <sp-accordion>
-           ${this.selectedProcess
+        ${this.selectedProcess
           ? html`
               <div class="detail-panel">
                 <process-info-modal
@@ -38,8 +38,6 @@ export class ObserverElement extends LitElement {
           .process_lines=${this.process_lines}
           @row-click=${this.handleRowClick}
         ></process-element>
-
-     
       </sp-accordion>
     `;
   }
@@ -58,13 +56,13 @@ export class ObserverElement extends LitElement {
       } else if (action === "result_process") {
         this.process_lines = data;
       } else if (action === "result_process_info") {
-       this.selectedProcess = data;
+        this.selectedProcess = data;
       }
     };
 
     this.ws.onopen = () => {
-      this.ws.send(JSON.stringify({ action: "onMemory" }));
-      this.ws.send(JSON.stringify({ action: "onProcess" }));
+      this.ws.send(JSON.stringify({ action: "get_memory" }));
+      this.ws.send(JSON.stringify({ action: "get_processes" }));
     };
 
     this.ws.onclose = () => {
@@ -74,7 +72,13 @@ export class ObserverElement extends LitElement {
 
   async firstUpdated() {
     await new Promise((r) => setTimeout(r, 0));
-    setInterval(() => this.ws.send("pong"), 1000);
+
+    // Alle 10 Sekunden "ping" senden
+    setInterval(() => {
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send("ping");
+      }
+    }, 10_000);
   }
 
   disconnectedCallback() {

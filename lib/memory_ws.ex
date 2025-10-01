@@ -6,11 +6,8 @@ defmodule Lobserver.WebSocket.Memory do
     {:ok, state}
   end
 
-  def handle_in({"pong", [opcode: :text]}, state) do
-    {:push, {:text, "ping"}, state}
-  end
-
   def handle_in({"ping", [opcode: :text]}, state) do
+    # Antworte auf Client-Pings
     {:push, {:text, "pong"}, state}
   end
 
@@ -25,12 +22,12 @@ defmodule Lobserver.WebSocket.Memory do
         result = %{action: "result_process_info", data: info}
         {:push, {:text, JSON.encode!(result)}, state}
 
-      {:ok, %{"action" => "onMemory"}} ->
+      {:ok, %{"action" => "get_memory"}} ->
         m = :erlang.memory() |> Enum.map(fn {k, v} -> %{key: k, value: humanize(v)} end)
         result = %{action: "result_memory", data: m}
         {:push, {:text, JSON.encode!(result)}, state}
 
-      {:ok, %{"action" => "onProcess"}} ->
+      {:ok, %{"action" => "get_processes"}} ->
         m =
           Lobserver.Process.list()
           |> Enum.reject(fn %{init: init} -> String.contains?(init, "ThousandIsland") end)
