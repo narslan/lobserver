@@ -15,7 +15,7 @@ defmodule Lobserver.WebSocket.Memory do
   end
 
   def handle_in(
-        {"{\"action\":\"onMemory\"}", [opcode: :text]},
+        {~s[{"action":"onMemory"}], [opcode: :text]},
         state
       ) do
     Logger.debug("get memory")
@@ -25,7 +25,7 @@ defmodule Lobserver.WebSocket.Memory do
   end
 
   def handle_in(
-        {"{\"action\":\"onProcess\"}", [opcode: :text]},
+        {~s[{"action":"onProcess"}], [opcode: :text]},
         state
       ) do
     Logger.debug("get process")
