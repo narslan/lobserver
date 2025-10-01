@@ -97,12 +97,25 @@ export class ProcessElement extends LitElement {
 						<sp-table>
 							<sp-table-head>
 								<sp-table-head-cell align="start"
+									sortable
+									sort-direction=${this.sortKey === "init"
+										? this.sortDirection
+										: "none"}
+									@click=${(e: Event) =>
+										this.onSort(e, "init")}
+
 									>Init</sp-table-head-cell
 								>
 								<sp-table-head-cell align="start"
 									>Current</sp-table-head-cell
 								>
 								<sp-table-head-cell align="start"
+									sortable
+									sort-direction=${this.sortKey === "name"
+										? this.sortDirection
+										: "none"}
+									@click=${(e: Event) =>
+										this.onSort(e, "name")}
 									>Name</sp-table-head-cell
 								>
 								<sp-table-head-cell
@@ -117,6 +130,13 @@ export class ProcessElement extends LitElement {
 								>
 
 								<sp-table-head-cell align="center"
+								sortable
+									sort-direction=${this.sortKey === "pid"
+										? this.sortDirection
+										: "none"}
+									@click=${(e: Event) =>
+										this.onSort(e, "pid")}
+
 									>Pid</sp-table-head-cell
 								>
 								<sp-table-head-cell align="center"
@@ -169,7 +189,7 @@ export class ProcessElement extends LitElement {
 		css`
 	sp-table-head-cell:nth-of-type(1),
 	sp-table-cell:nth-of-type(1) {
-  		width: 80px; /* Init */
+  		width: 100px; /* Init */
 	}
 
 	sp-table-head-cell:nth-of-type(2),
