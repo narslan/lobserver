@@ -5,31 +5,41 @@ import "./memory";
 import { Memory } from "./memory";
 import "./process";
 import { Process } from "./process";
+import "./process-info-modal";
+
 @customElement("observer-element")
 export class ObserverElement extends LitElement {
-  @state()
-  ws = new WebSocket(`ws://localhost:8000/_memory`);
-  @state()
-  memory_lines?: Memory[] = [];
-  @state()
-  process_lines?: Process[] = [];
-
+  @state() ws = new WebSocket(`ws://localhost:8000/_memory`);
+  @state() memory_lines?: Memory[] = [];
+  @state() process_lines?: Process[] = [];
+  @state() selectedProcess: any = null; 
   private handleRowClick(e: CustomEvent<{ pid: string }>) {
     const pid = e.detail.pid;
     this.ws.send(JSON.stringify({ action: "get_process_info", pid }));
   }
-  
+
   render() {
     return html`
       <sp-accordion>
-        <memory-element .memory_lines=${this.memory_lines}> </memory-element>
+        <memory-element .memory_lines=${this.memory_lines}></memory-element>
       </sp-accordion>
+
       <sp-accordion>
+           ${this.selectedProcess
+          ? html`
+              <div class="detail-panel">
+                <process-info-modal
+                  .processData=${this.selectedProcess}
+                ></process-info-modal>
+              </div>
+            `
+          : ""}
         <process-element
           .process_lines=${this.process_lines}
           @row-click=${this.handleRowClick}
-        >
-        </process-element>
+        ></process-element>
+
+     
       </sp-accordion>
     `;
   }
@@ -37,48 +47,50 @@ export class ObserverElement extends LitElement {
   async connectedCallback() {
     super.connectedCallback();
     await this.updateComplete;
-    const that = this;
-    this.ws.onmessage = function (msg: MessageEvent) {
+
+    this.ws.onmessage = (msg: MessageEvent) => {
       const { action, data } = msg.data.startsWith("{")
-        ? (JSON.parse(msg.data) as {
-            action: string;
-            data: [];
-          })
+        ? (JSON.parse(msg.data) as { action: string; data: any })
         : { action: "", data: [] };
 
       if (action === "result_memory") {
-        that.memory_lines! = [...that.memory_lines, ...data];
+        this.memory_lines = data;
       } else if (action === "result_process") {
-        that.process_lines = [...that.process_lines, ...data];
+        this.process_lines = data;
+      } else if (action === "result_process_info") {
+       this.selectedProcess = data;
       }
     };
 
     this.ws.onopen = () => {
-      const mem_request = { action: "onMemory" };
-      this.ws.send(JSON.stringify(mem_request));
-      const process_request = { action: "onProcess" };
-      this.ws.send(JSON.stringify(process_request));
+      this.ws.send(JSON.stringify({ action: "onMemory" }));
+      this.ws.send(JSON.stringify({ action: "onProcess" }));
     };
+
     this.ws.onclose = () => {
-      const expression = { action: "onMemoryClose" };
-      this.ws.send(JSON.stringify(expression));
+      this.ws.send(JSON.stringify({ action: "onMemoryClose" }));
     };
   }
 
   async firstUpdated() {
-    // Give the browser a chance to paint
     await new Promise((r) => setTimeout(r, 0));
-    setInterval(() => {
-      this.ws.send("pong");
-    }, 1000);
+    setInterval(() => this.ws.send("pong"), 1000);
   }
 
-  async disconnectedCallback() {
+  disconnectedCallback() {
     super.disconnectedCallback();
     this.ws.close();
   }
 
-  static styles = [css``];
+  static styles = css`
+    .detail-panel {
+      margin-top: 1rem;
+      border: 1px solid var(--spectrum-global-color-gray-300);
+      border-radius: 6px;
+      background: var(--spectrum-global-color-gray-50);
+      padding: 1rem;
+    }
+  `;
 }
 
 declare global {

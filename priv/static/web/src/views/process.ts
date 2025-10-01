@@ -1,10 +1,8 @@
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { map } from "lit/directives/map.js";
-import { when } from "lit/directives/when.js";
-
 import "@spectrum-web-components/accordion/sp-accordion-item.js";
 import "@spectrum-web-components/table/elements.js";
+import { LitElement, css, html } from "lit";
+import { customElement, property } from "lit/decorators.js";
+
 
 export interface Process {
 	init: string;
@@ -29,7 +27,7 @@ export class ProcessElement extends LitElement {
 	date?: Date;
 	@property()
 	process_lines?: Process[];
-
+	
 	// interner Sortierzustand
 	@property({ type: String }) sortKey: keyof Process = "memory";
 	@property({ type: String }) sortDirection: "asc" | "desc" = "desc";
@@ -191,9 +189,11 @@ export class ProcessElement extends LitElement {
 								)}
 							</sp-table-body>
 						</sp-table>
+						
 					</section>
 				</div>
 			</sp-accordion-item>
+			
 		`;
 	}
 
