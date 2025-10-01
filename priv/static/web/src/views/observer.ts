@@ -13,13 +13,22 @@ export class ObserverElement extends LitElement {
   memory_lines?: Memory[] = [];
   @state()
   process_lines?: Process[] = [];
+
+  private handleRowClick(e: CustomEvent<{ pid: string }>) {
+    const pid = e.detail.pid;
+    this.ws.send(JSON.stringify({ action: "get_process_info", pid }));
+  }
+  
   render() {
     return html`
       <sp-accordion>
         <memory-element .memory_lines=${this.memory_lines}> </memory-element>
       </sp-accordion>
       <sp-accordion>
-        <process-element .process_lines=${this.process_lines}>
+        <process-element
+          .process_lines=${this.process_lines}
+          @row-click=${this.handleRowClick}
+        >
         </process-element>
       </sp-accordion>
     `;
@@ -37,11 +46,10 @@ export class ObserverElement extends LitElement {
           })
         : { action: "", data: [] };
 
-      if (action === "result_memory") { 
+      if (action === "result_memory") {
         that.memory_lines! = [...that.memory_lines, ...data];
       } else if (action === "result_process") {
         that.process_lines = [...that.process_lines, ...data];
-        
       }
     };
 

@@ -88,6 +88,15 @@ export class ProcessElement extends LitElement {
 			return this.sortDirection === "asc" ? cmp : -cmp; // <= wichtig!
 		});
 	}
+	private onRowClick(pid: string) {
+		this.dispatchEvent(
+			new CustomEvent("row-click", {
+				detail: { pid },
+				bubbles: true,
+				composed: true,
+			}),
+		);
+	}
 
 	render() {
 		return html`
@@ -96,20 +105,21 @@ export class ProcessElement extends LitElement {
 					<section id="tree-section">
 						<sp-table>
 							<sp-table-head>
-								<sp-table-head-cell align="start"
+								<sp-table-head-cell
+									align="start"
 									sortable
 									sort-direction=${this.sortKey === "init"
 										? this.sortDirection
 										: "none"}
 									@click=${(e: Event) =>
 										this.onSort(e, "init")}
-
 									>Init</sp-table-head-cell
 								>
 								<sp-table-head-cell align="start"
 									>Current</sp-table-head-cell
 								>
-								<sp-table-head-cell align="start"
+								<sp-table-head-cell
+									align="start"
 									sortable
 									sort-direction=${this.sortKey === "name"
 										? this.sortDirection
@@ -129,33 +139,35 @@ export class ProcessElement extends LitElement {
 									>Memory</sp-table-head-cell
 								>
 
-								<sp-table-head-cell align="center"
-								sortable
+								<sp-table-head-cell
+									align="center"
+									sortable
 									sort-direction=${this.sortKey === "pid"
 										? this.sortDirection
 										: "none"}
 									@click=${(e: Event) =>
 										this.onSort(e, "pid")}
-
 									>Pid</sp-table-head-cell
 								>
-								<sp-table-head-cell align="center"
-
+								<sp-table-head-cell
+									align="center"
 									sortable
-									sort-direction=${this.sortKey === "reductions"
+									sort-direction=${this.sortKey ===
+									"reductions"
 										? this.sortDirection
 										: "none"}
 									@click=${(e: Event) =>
 										this.onSort(e, "reductions")}
-
-
 									>Reductions</sp-table-head-cell
 								>
 							</sp-table-head>
 							<sp-table-body>
 								${this.sortedProcesses.map(
 									(p) => html`
-										<sp-table-row>
+										<sp-table-row
+											@click=${() =>
+												this.onRowClick(p.pid)}
+										>
 											<sp-table-cell
 												>${p.init}</sp-table-cell
 											>

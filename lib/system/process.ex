@@ -180,11 +180,11 @@ defmodule Lobserver.Process do
       end
 
     %{
-      pid: :erlang.pid_to_list(pid) |> List.to_string(),
-      name: process_name,
+      pid: json_safe(pid),
+      name: json_safe(process_name),
       init: format_function(initial_call(data)),
       current: format_function(Keyword.get(data, :current_function, nil)),
-      memory: Keyword.get(data, :memory, 0) |> humanize,
+      memory: Keyword.get(data, :memory, 0) |> humanize(),
       reductions: Keyword.get(data, :reductions, 0),
       message_queue_length: Keyword.get(data, :message_queue_len, 0)
     }
@@ -192,19 +192,19 @@ defmodule Lobserver.Process do
 
   defp structure_full(data, pid) do
     gc = Keyword.get(data, :garbage_collection, [])
-    dictionary = Keyword.get(data, :dictionary)
+    dictionary = Keyword.get(data, :dictionary, [])
 
     %{
-      pid: pid,
-      registered_name: Keyword.get(data, :registered_name, nil),
+      pid: json_safe(pid),
+      registered_name: json_safe(Keyword.get(data, :registered_name, nil)),
       priority: Keyword.get(data, :priority, :normal),
       trap_exit: Keyword.get(data, :trap_exit, false),
       message_queue_len: Keyword.get(data, :message_queue_len, 0),
-      error_handler: Keyword.get(data, :error_handler, :none),
+      error_handler: json_safe(Keyword.get(data, :error_handler, :none)),
       relations: %{
-        group_leader: Keyword.get(data, :group_leader, nil),
-        ancestors: Keyword.get(dictionary, :"$ancestors", []),
-        links: Keyword.get(data, :links, nil)
+        group_leader: json_safe(Keyword.get(data, :group_leader)),
+        ancestors: json_safe(Keyword.get(dictionary, :"$ancestors", [])),
+        links: json_safe(Keyword.get(data, :links, []))
       },
       memory: %{
         total: Keyword.get(data, :memory, 0),
@@ -245,4 +245,22 @@ defmodule Lobserver.Process do
   defp humanize(bytes) do
     Sizeable.filesize(bytes)
   end
+
+  defp json_safe(nil), do: nil
+
+  defp json_safe(x) when is_pid(x),
+    do: x |> :erlang.pid_to_list() |> List.to_string()
+
+  defp json_safe(x) when is_atom(x), do: Atom.to_string(x)
+
+  defp json_safe({m, f, a}) when is_atom(m) and is_atom(f) and is_integer(a),
+    do: "#{m}.#{f}/#{a}"
+
+  defp json_safe(list) when is_list(list),
+    do: Enum.map(list, &json_safe/1)
+
+  defp json_safe(map) when is_map(map),
+    do: Map.new(map, fn {k, v} -> {json_safe(k), json_safe(v)} end)
+
+  defp json_safe(other), do: other
 end
