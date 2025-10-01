@@ -96,6 +96,7 @@ defmodule Lobserver.Process do
   @spec list :: list(map)
   def list do
     :erlang.processes()
+    |> Enum.filter(&is_pid/1)
     |> Enum.map(&summary/1)
   end
 
@@ -126,8 +127,10 @@ defmodule Lobserver.Process do
 
   """
   @spec summary(pid :: pid) :: map
-  def summary(pid),
-    do: pid |> process_info(@process_summary, &structure_summary/2)
+  def summary(pid) do
+    info = process_info(pid, @process_summary, &structure_summary/2)
+    sanitize_for_json(info)
+  end
 
   # Helpers
 
@@ -251,6 +254,9 @@ defmodule Lobserver.Process do
   defp json_safe(x) when is_pid(x),
     do: x |> :erlang.pid_to_list() |> List.to_string()
 
+  defp json_safe(x) when is_port(x),
+    do: x |> :erlang.port_to_list() |> List.to_string()
+
   defp json_safe(x) when is_atom(x), do: Atom.to_string(x)
 
   defp json_safe({m, f, a}) when is_atom(m) and is_atom(f) and is_integer(a),
@@ -263,4 +269,14 @@ defmodule Lobserver.Process do
     do: Map.new(map, fn {k, v} -> {json_safe(k), json_safe(v)} end)
 
   defp json_safe(other), do: other
+
+  defp sanitize_for_json(value) do
+    cond do
+      is_pid(value) -> :erlang.pid_to_list(value) |> List.to_string()
+      is_port(value) -> :erlang.port_to_list(value) |> List.to_string()
+      is_list(value) -> Enum.map(value, &sanitize_for_json/1)
+      is_map(value) -> Map.new(value, fn {k, v} -> {k, sanitize_for_json(v)} end)
+      true -> value
+    end
+  end
 end
