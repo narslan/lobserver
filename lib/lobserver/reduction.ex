@@ -1,6 +1,5 @@
 defmodule Lobserver.Metrics.ReductionsCollector do
   use GenServer
-  require Logger
 
   @interval 1_000
 

@@ -1,6 +1,5 @@
 defmodule Lobserver.Metrics.MemoryCollector do
   use GenServer
-  require Logger
 
   @interval 1_000
 
